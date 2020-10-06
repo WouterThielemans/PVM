@@ -1,0 +1,170 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= Setup
+
+Please read these instructions carefully, as matters have been complicated a bit by some GitHub related issues.
+
+. If you were anxious to get started on this project and cloned my repository (i.e. and have not yet created a fork through GitHub Classroom), follow <<#clone, these instructions>>.
+. If you have done nothing yet: follow <<#github, these instructions>>.
+
+
+[#clone]
+== For Those Who Cloned The Repository
+
+This section assumes you have cloned https://github.com/UCLeuvenLimburg/midi-project-student.git to your local machine.
+
+=== Step 1: Creating your Own Fork
+
+First, go create your fork on GitHub Classroom.
+The link is available on Toledo.
+This takes a little while, but you can proceed with the next step as soon as you know your fork's URL.
+
+=== Step 2: Changing `origin`
+
+Open Git Bash in the project's directory.
+Let `origin` refer to your fork:
+
+[source,bash]
+----
+$ git remote set-url origin URL
+----
+
+where URL should the replaced by the actual URL of your repository.
+
+IMPORTANT: As always with bash commands, omit the `$`.
+
+[source,bash]
+----
+$ git remote add upstream https://github.com/UCLeuvenLimburg/midi-project-student
+----
+
+Continue to <<#updates,this section>>.
+
+[#github]
+== For Those Starting From Nothing
+
+=== Step 1: Creating Your Own Fork
+
+Go to the GitHub Classroom link provided to you (see Toledo) and accept the assignment.
+This creates a new fork (i.e. a copy) of the Git repository under your account.
+
+Forking takes a little while for some reason.
+Unfortunately, you have to wait until it is finished before proceeding.
+
+=== Step 2: Clone Your Fork
+
+Clone this fresh repository using the following command, replacing `URL` by the url of your fork.
+
+[source,bash]
+----
+$ git clone URL midi-project
+----
+
+If you were impatient and didn't wait for the forking process to end, your local repository will be empty.
+If this happened, delete the directory and clone again.
+
+IMPORTANT: Also, **do not clone your repository into a DropBox/OneDrive/Google Drive managed directory**.
+This makes no sense whatsoever and can cause serious problems.
+
+[#updates]
+== Receiving Updates
+
+Sometimes, I make updates to my repository.
+These can include
+
+* Clarifications
+* Extra tests
+* Bug fixes
+* A completely different assignment two days before the deadline
+
+I promise to try to refrain from doing the last one listed, but still, it is crucial for your repository to be kept up to date.
+
+Below are the instructions of how to pull in updates I made to *my* repository into *your* repository.
+
+IMPORTANT: It is *your* responsibility to keep up to date.
+Failure to do so might have a detrimental effect on your grade.
+
+=== Step 1: Watching the Repository
+
+On the https://github.com/UCLeuvenLimburg/midi-project-student[my repository's website], click the Watch button in order to receive notifications about updates.
+
+=== Step 2: Adding Upstream
+
+Add a second remote named `upstream` that refers to my repository.
+
+[source,bash]
+----
+$ git remote add upstream https://github.com/UCLeuvenLimburg/midi-project-student
+----
+
+=== Step 3: Verification
+
+Enter the command on the first line.
+The following lines should more or less correspond to the output you get.
+
+[source,bash]
+----
+$ git remote -v
+origin  YOUR-FORKS-URL (fetch)
+origin  YOUR-FORKS-URL (push)
+upstream  https://github.com:UCLeuvenLimburg/midi-project-student.git (fetch)
+upstream  https://github.com:UCLeuvenLimburg/midi-project-student.git (push)
+----
+
+If you think something went wrong, please contact me.
+
+=== Updating
+
+NOTE: Repeat this step every time you update.
+
+Make sure you added and committed your changes, otherwise Git might refuse to pull in the update.
+
+[source,bash]
+----
+$ git pull upstream master
+----
+
+IMPORTANT: Read the output to check for errors.
+In the past, some people didn't bother to check and never actually updated.
+
+IMPORTANT: Make sure you check for merge conflicts.
+I do my very best to avoid these, but some are very hard/impossible to avoid.
+
+[#ide]
+== IDE
+
+=== Visual Studio
+
+* Use `midi.sln` solution file to open your project in Visual Studio.
+* Select "Show All Files" in the Solution Explorer so as to view the folder structure.
+* Notice the three builds available: Debug, Release and Testing.
+** To run the tests, select the Testing build and press kbd:[Ctrl+F5] or kbd:[F5] (to enable debugging).
+   Note that we're not making use of Visual Studio's support for testing, so as far as the IDE knows, there are no tests.
+   In other words, do not be surprised if the Test Explorer says no tests are present.
+** To run your own `main` function, select either Debug or Release and press kbd:[Ctrl+F5] or kbd:[F5] (to enable debugging).
+   During development, you'll probably want to use the former.
+
+[IMPORTANT]
+====
+The file `tests.cpp` must be included in your project.
+Without it, you will get a series of intimidating linker errors.
+====
+
+=== GCC/Clang
+
+This section is meant for those not using Visual Studio.
+Make the following configuration settings:
+
+* Add `.` as include directory and compile from within the `src/midi` folder.
+  This makes it easier to specify `#include` paths: they all start from the root of the project.
+  AFAIK, setting `.` as include directory is done using the `-I` option. E.g., `gcc -I. [other stuff]`.
+* In order to run the tests, define the `TEST_BUILD` macro.
+  AFAIK, this can be achieved using the `-D` option: `gcc -DTEST_BUILD [other stuff]`.

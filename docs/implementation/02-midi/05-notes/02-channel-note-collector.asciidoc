@@ -1,0 +1,253 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= `ChannelNoteCollector`
+
+== Goal
+
+In the previous step, you defined a `NOTE` data structure which contains all information that defines a note.
+In order to visualize the music, we would like to have a nice list of `NOTE` objects.
+However, while a MIDI file does indeed contain this information, it does so in a somewhat indirect manner: instead of a list of notes, it encodes them as note on and note off events.
+It will therefore be necessary to find pairs of these events, each defining a single note.
+An example of the correspondence between notes and events can be found in <<../../../background-information/midi.asciidoc#example,the MIDI background information>>.
+
+It is important to know when a note on and note off event both form a pair.
+
+* Both events need to take place on the same channel.
+* Both events mention the same note.
+
+A note also has an instrument associated with it.
+Instruments are encoded as <<../../../background-information/midi.asciidoc#programchange,program change events>>.
+This means that in order to reconstruct note data from midi events, you need to keep an eye on three types of events:
+
+* Note on
+* Note off
+* Program change
+
+Keeping track of notes and instruments on all channels simultaneously can become a bit complex.
+We therefore choose to split up the code in separate classes.
+
+....
+read_mtrk --> EventMulticaster --+--> ChannelNoteCollector(0) ---+--> note list
+                                 |                               |
+                                 +--> ChannelNoteCollector(1) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(2) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(3) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(4) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(5) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(6) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(7) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(8) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(9) ---+
+                                 |                               |
+                                 +--> ChannelNoteCollector(10) --+
+                                 |                               |
+                                 +--> ChannelNoteCollector(11) --+
+                                 |                               |
+                                 +--> ChannelNoteCollector(12) --+
+                                 |                               |
+                                 +--> ChannelNoteCollector(13) --+
+                                 |                               |
+                                 +--> ChannelNoteCollector(14) --+
+                                 |                               |
+                                 +--> ChannelNoteCollector(15) --+
+....
+
+* A `ChannelNoteCollector` will focus on a single channel `C` and (mostly) ignore events on other channels.
+  It keeps track of instrument changes and notes.
+* Because there are 16 different channels, we will also need 16 different ``ChannelNoteCollector``s, each responsible for collecting the notes on a particular channel.
+* `read_mtrk` processes the MIDI file.
+  Every time it finds an event, it informs the `EventReceiver` passed to it as parameter.
+  However, now we have 16 such `EventReceiver`s (i.e. the 16 ``ChannelNoteCollector``s).
+  We need a way of duplicating the event information to all 16 receivers.
+  For this, we introduce the `EventMulticaster` class.
+  Further details about this class will be given in a later step.
+
+== `ChannelNoteCollector`
+
+A `ChannelNoteCollector` derives from `EventReceiver`.
+It receives all events but only actually cares about those on the "right" channel.
+It keeps track of instrument changes (encoded as program change events) and forms notes based on note-on and note-off events.
+
+[NOTE,caption={task-caption}]
+====
+* Start with creating the necessary files to accomodate the `ChannelNoteReceiver` class.
+* Define `ChannelNoteReceiver` as a subclass of `EventReceiver`.
+* `EventReceiver` has a number of "abstract" member functions which all need an implementation in `ChannelNoteReceiver`.
+  For now, an empty body will do.
+====
+
+Say we send a `ChannelNoteCollector` the following events using the code below:
+
+[source,c++]
+----
+// Assume collector listens to channel 4
+collector.program_change(Duration(555), Channel(4), Instrument(9));
+collector.note_on (Duration(0)  , Channel(4), NoteNumber(5), 127);
+collector.note_off(Duration(100), Channel(4), NoteNumber(5), 0  );
+----
+
+The `collector` should produce a `NOTE` with
+
+[%header,cols=">,<",width="30%"]
+|===
+| Field | Value
+| `note_number` | 5
+| `instrument` | 9
+| `start` | 555
+| `duration` | 100
+| `velocity` | 127
+|===
+
+Make sure you understand all the details:
+
+* The first event occurs only after 555 time units, which impacts all following events.
+  This explains why the note starts at 555.
+* The duration of the note corresponds to the difference in time between the note on and note off events, that is, 100 time units.
+* THe instrument is determined by the program change event which takes place on the same channel as the note on/off events.
+* The note number and velocity come from the note on/off events.
+
+The default instrument is `0`, so if no `program_change` event occurred, `0` is the instrument that should be assigned to all subsequent notes.
+
+Notes on the 'wrong' channel should be ignored:
+
+[source,c++]
+----
+// Assume collector listens to channel 4
+collector.note_on (Duration(0)  , Channel(4), NoteNumber(44), 70);
+collector.note_on (Duration(0)  , Channel(5), NoteNumber(44), 80);
+collector.note_off(Duration(100), Channel(5), NoteNumber(44), 0 );
+collector.note_off(Duration(100), Channel(4), NoteNumber(44), 0 );
+----
+
+should produce one note:
+
+[%header,cols=">,<",width="30%"]
+|===
+| Field | Value
+| `note_number` | 44
+| `instrument` | 0
+| `start` | 0
+| `duration` | 200
+| `velocity` | 70
+|===
+
+IMPORTANT: Make sure you understand why the `duration` is `200`, not `100`.
+Many students forget about taking into account the `delta_time` values of events on a different channel.
+
+A `ChannelNoteCollector` should be initialized with a channel so that it knows which channel to keep an eye on.
+In other words, the constructor should have a `Channel` parameter.
+
+[NOTE,caption={task-caption}]
+====
+* Add a constructor to `ChannelNoteCollector`.
+* Have it accept a `Channel`, which it stores in a field.
+====
+
+[#notereceiver]
+=== Receiving Notes
+
+Where does the collector send its `NOTE`s to?
+We could have the collector store all the `NOTE`s in a `std::vector<NOTE>`, but that would be making assumptions:
+
+* Maybe the user of the collector class want them in a `std::list<NOTE>`.
+* Perhaps not store them at all put directly print them out.
+* A MIDI file might contain a huge amount of notes that will not fit in memory.
+
+So we need to ask ourselves the question, what should the `ChannelNoteCollector` do with these notes so as to maximize flexibility?
+
+One way would be to introduce the concept of a note receiver, which could be defined as
+
+[source,c++]
+----
+class NoteReceiver
+{
+public:
+    virtual void receive_note(const NOTE&) = 0;
+};
+----
+
+This could work, but puts the additional burden on the user of defining an extra class plus all complexity that goes with it.
+For example, say we want the gather all ``NOTE``s in a vector, we would have to write
+
+[source,c++]
+----
+class ToVector : public NoteReceiver
+{
+private:
+    std::vector<NOTE>* vector;
+
+public:
+    ToVector(std::vector<NOTE>* vector) : vector(vector) { }
+
+    void receive_note(const NOTE& note) override
+    {
+        vector->push_back(note);
+    }
+};
+
+std::vector<NOTE> notes;
+ToVector receiver(&notes);
+ChannelNoteCollector collector(Channel(5), receiver);
+----
+
+We can shorten this dramatically by relying on <<../../../background-information/lambdas.asciidoc#,lambdas>>:
+
+[source,c++]
+----
+std::vector<NOTE> notes;
+ChannelNoteCollector collector(Channel(5),
+                               [&notes](const NOTE& note) { notes.push_back(note); });
+----
+
+So, what does this mean for our `ChannelNoteCollector`?
+Its constructor needs a second parameter: a function which it calls whenever a new note has been found
+In our case, the function needs to accept a `const NOTE&` and return nothing:
+
+[source,c++]
+----
+std::function<void(const NOTE&)> note_receiver
+----
+
+You can simply pass a function by value (no need to use references or pointers).
+
+[NOTE,caption={task-caption}]
+====
+Add the second parameter to ``ChannelNoteCollector``'s constructor.
+As usual, the constructor should store this parameter's value in a field.
+====
+
+=== Handling the Events
+
+The only remaining thing to do is implement each event-handling member function.
+
+* You are mostly interested in dealing with note on, note off and program change/
+* Don't forget to check if the events take place on the correct channel.
+* `note_on` should register the note's starting time and velocity.
+* `note_on` should check the velocity: if it is <<../../../background-information/midi.asciidoc#noteonzerovelocity,zero>>, you should interpret it as a note off event.
+* `note_off` should look up the information stored by note_on and create a `NOTE`.
+* Make sure to keep it efficient.
+  Store the data in the right data structure.
+  No loops are necessary: it is just a matter of looking up the information in the right place.
+* Don't forget to deal with the other events appropriately!
+  The corresponding member functions definitely should *not* be empty.
+
+[NOTE,caption={task-caption}]
+====
+Implement each of ``ChannelNoteCollector``'s member functions.
+====

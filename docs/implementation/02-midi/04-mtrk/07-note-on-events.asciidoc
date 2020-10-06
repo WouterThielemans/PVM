@@ -1,0 +1,20 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= Note On Events
+
+[NOTE,caption={task-caption}]
+====
+Add support for <<../../../background-information/midi.asciidoc#noteon,note on events>> to `read_mtrk`.
+====
+
+As you may remember from the <<../../../background-information/midi.asciidoc#noteonzerovelocity,MIDI background information>>, note on events with velocity set to 0 are equivalent to note off events.
+`read_mtrk` should **not** implement this rule: this special case is dealt with elsewhere.
+Have `read_mtrk` simply call `note_on` whenever a note on event is encountered, regardless of the velocity.

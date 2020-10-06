@@ -1,0 +1,36 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= `EventMulticaster`
+
+We turn our attention to `EventMulticaster`.
+This class is itself an `EventReceiver`.
+Its purpose is to forward all the events it receives to other ``EventReceiver``s.
+
+The constructor accepts a vector of `std::shared_ptr<EventReceiver>`s.
+At each event X, it iterates over the vector and calls each ``EventReceiver``'s corresponding X member function.
+
+[NOTE,caption={task-caption}]
+====
+Write the `EventMulticaster` class.
+
+* Make it a subclass of `EventReceiver`.
+* Write its constructor.
+* Implement all the member functions required by `EventReceiver`.
+  All methods operate similary, so this might involve some copy pasting.
+====
+
+[NOTE]
+====
+Visual Studio 2017 might indicate errors regarding a missing `check_finished` member function in this test file.
+You can ignore them, it'll compile and run just fine.
+
+This bug seems to have been fixed in Visual Studio 2019.
+====

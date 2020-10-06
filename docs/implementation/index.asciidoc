@@ -1,0 +1,32 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= Implementation
+
+This folder contains step-by-step instructions of how to implement your MIDI project.
+
+* link:01-io/[General IO functionality]
+* link:02-midi/[Reading MIDI files]
+* link:03-visualization/[Rendering MIDI files]
+
+== Tests
+
+Note that, initially, the test files are *not* included in your project.
+This is due to the fact that otherwise you'd have to finish the entire project before being able to compile the tests.
+
+For every step in this guide, there is a corresponding test suite in the project.
+You can include it by right clicking on it in the Solution Explorer and selecting "Include In Project".
+You can then proceed to write code to make these tests pass.
+
+You are of course free to comment out some tests so as to make a more gradual development possible.
+With each passing test, you can uncomment the next one.
+
+You are not allowed to modify the tests in anyway unless explicitly mentioned otherwise.
+If you think some tests make unnecessary assumptions, send me an email so that I can take it into consideration.

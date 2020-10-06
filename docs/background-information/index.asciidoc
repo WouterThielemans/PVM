@@ -1,0 +1,27 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= Background Information
+
+* <<image-example.asciidoc#,Image Format Example>>
+* MIDI
+** <<midi.asciidoc#,MIDI File Format>>
+** <<endianness.asciidoc#,Endianness>>
+** <<variable-length-integers.asciidoc#,Variable Length Integers>>
+* C++ specific
+** <<strong-typedefs.asciidoc#,Strong Typedefs>>
+** <<namespace.asciidoc#,Namespaces>>
+** <<lambdas.asciidoc#,Lambdas>>
+** <<memory-alignment.asciidoc#,Memory Alignment>>
+** <<assertions.asciidoc#,Assertions>>
+* Visual Studio specific
+** <<debugger-visualizers.asciidoc#,Debugger Visualizers>>
+* <<inversion-of-control.asciidoc#,Inversion of Control>>
+* <<command-line-parser.asciidoc#,Command Line Parser>>

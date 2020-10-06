@@ -1,0 +1,43 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= Event Receiver
+
+Read up on <<../../../background-information/inversion-of-control#,Inversion of Control>> to understand the purpose of this step.
+
+To implement this pattern, we need an interface-like class (i.e. only unimplemented virtual member functions) `EventReceiver` that has one member function per type of event.
+Each member function will be called when the corresponding type of event is encountered in the MIDI file.
+The extra data associated with the event will be provided through parameters.
+
+For example, take the note on event.
+
+[source,c++]
+----
+void note_on(Duration dt, Channel channel, NoteNumber note, uint8_t velocity);
+----
+
+Note the following:
+
+* The return type always has to be `void`.
+* The function's name mirrors the event type.
+* The parameters correspond to the data associated with the event.
+* Note the lack of `const`: we want our receiver objects to change state internally upon reception of event data.
+
+A couple of other examples:
+
+* `void meta(Duration dt, uint8_t type, std::unique_ptr<uint8_t[]> data, uint64_t data_size)`
+* `void sysex(Duration dt, std::unique_ptr<uint8_t[]> data, uint64_t data_size)`
+
+[NOTE,caption={task-caption}]
+====
+Define `EventReceiver`.
+Add one member function per event type.
+You need nine in total.
+====

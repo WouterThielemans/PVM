@@ -1,0 +1,18 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= `MTHD`
+
+[NOTE,caption={task-caption}]
+====
+Define a struct `MTHD` that models an <<../../../background-information/midi.asciidoc#mthd,MThd chunk>>.
+====
+
+TIP: The compiler will perform some optimizations which you actually don't want. Read up on <<../../../background-information/memory-alignment.asciidoc#,memory alignment>> to counteract these.

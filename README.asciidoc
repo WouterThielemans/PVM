@@ -1,0 +1,46 @@
+:url-setup: docs/setup.asciidoc
+:url-background: docs/background-information/index.asciidoc
+:url-implementation: docs/implementation/index.asciidoc
+:toc: left
+
+# MIDI Project
+
+This repository contains all information regarding the MIDI project.
+This includes
+
+* Some starter code
+* Tests
+* Documentation
+* Configuration settings
+
+== How To Get Started
+
+. Start by going through the link:{url-setup}[setup instructions].
+  Make sure to go through every step.
+  If you have a problem due to not following these instructions correctly, the only help from me you will get is a link to this page.
+. Skim through the link:{url-background}[background information] to get an idea of what is available.
+  While certainly allowed, it is of little use to read this information thoroughly now.
+  By the time you will need it, you will have forgotten most of it.
+  The purpose of this background information is that you look it up whenever you need it, which is why you need to be aware of which topics are considered.
+. Start going through the link:{url-implementation}[implementation steps] in order.
+  Include the corresponding tests, create the necessary files and write code.
+  Only proceed to the next step when everything compiles and all tests pass.
+
+== Reading the Documentation
+
+The documentation is written in the AsciiDoc format.
+The *easiest* way to read it is by browsing to the `.asciidoc` file using GitHub's website.
+
+The *nicer* way is to convert the `.asciidoc` files to `.html` files.
+This allows you to view the documentation offline.
+The formatting is also nicer (and can be tweaked if you want, which is a luxury GitHub does not offer.)
+You can use https://asciidoctor.org/[AsciiDoctor] to convert the documentation to HTML.
+After installing AsciiDoctor, run `generate-html-docs.sh`.
+
+== Links
+
+* link:{url-setup}[Setup Instructions]
+* link:{url-background}[Background Information]
+* link:{url-implementation}[Implementation steps]
+* https://github.com/UCLeuvenLimburg/midihelper[Python Helper Script] which can help you with debugging.
+* http://files.leone.ucll.be/midi-samples.zip[Sample MIDI files and corresponding visualizations]

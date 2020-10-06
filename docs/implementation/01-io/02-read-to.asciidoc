@@ -1,0 +1,104 @@
+:tip-caption: 💡
+:note-caption: ℹ️
+:important-caption: ⚠️
+:task-caption: 👨‍🔧
+:source-highlighter: rouge
+:toc: left
+:toclevels: 3
+:experimental:
+:nofooter:
+
+= `read_to`
+
+== Goal
+
+We want a function that allows us to easily read data of any type from binary files. For example,
+
+[source,c++]
+----
+std::ifstream in(filename);
+
+int data;
+read_to(in, &data);
+----
+
+reads 4 bytes (assuming `int` is 4 bytes long) from `in` and reinterprets these bytes as a single `int`.
+This `int` is then stored in `data`, i.e. it is *not* returned.
+
+We would also like to read multiple values at once:
+
+[source,c++]
+----
+std::ifstream in(filename);
+
+int data[5];
+read_to(in, data, 5);
+----
+
+reads 20 bytes (again, assuming `int` is 4 bytes long).
+These 5 values are stored in the array `data`.
+
+[NOTE,caption={task-caption}]
+====
+Write a template function `read_to<T>` that receives
+
+* an input stream `in` of type `std::istream`;
+* a pointer `buffer` of type `T*`;
+* a value `n` of type `size_t` (which is basically an unsigned integer).
+  Its default value is `1`.
+
+`read_to<T>(in, buffer, n)` https://lmgtfy.com/?q=c%2B%2B+istream+read+bytes[reads] in `n` `T` values from the `in`.
+It does this by reading https://lmgtfy.com/?q=c%2B%2B+find+out+size+of+type[the correct number] of raw bytes from the `istream` and reinterpreting these bytes as a `n` consecutive ``T``s.
+====
+
+[NOTE]
+====
+An example of how to reinterpret bytes can be found in the <<../../background-information/image-example.asciidoc#,background information>>.
+====
+
+[IMPORTANT]
+====
+Make sure to look up the details of how to define templated functions.
+There are some fundamental differences with how regular (non-templated) functions are defined.
+====
+
+[NOTE]
+====
+If you have trouble solving this task, remember: baby steps.
+Focus on making everything compile first.
+Only then move on to implementing the actual functionality and making the tests pass.
+====
+
+== Error Checking
+
+Reading from an invalid `in` is possible and won't crash.
+Execution will simply proceed with the wrong values and some other unrelated part of the application will crash.
+You definitely don't want this.
+Instead, you want to fail fast, i.e., you want to be notified as soon as the error presents itself.
+It is therefore strongly advised to perform some rror checking.
+
+Hence, `read_to` should check whether the read operation succeeded.
+Rely on the ``istream``'s http://www.cplusplus.com/reference/ios/ios/fail/[`fail` method] for this.
+If the read operation failed, simply crash the application.
+You can achieve this by making use of an <<../../background-information/assertions.asciidoc#,assertion>>.
+For this project, you can make use of `CHECK`:
+
+[source,c++]
+----
+#include "logging.h"
+
+void foo()
+{
+    CHECK(condition) << error_message;
+}
+----
+
+If `condition` evaluates to `false`, `error_message` is printed and the application is aborted.
+The check will be performed both in debug and release build.
+Hardly elegant, but good enough for our purposes.
+
+[IMPORTANT]
+====
+We strongly recommend you use `CHECK` as often as you can, so as to catch errors as soon as possible.
+It'll simply debugging considerably.
+====
